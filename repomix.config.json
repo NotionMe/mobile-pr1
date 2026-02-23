@@ -1,0 +1,18 @@
+{
+  "output": {
+    "filePath": "repomix-output.md",
+    "style": "markdown"
+  },
+  "include": [
+    "**/*.tsx"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "node_modules/**",
+      ".expo/**",
+      ".git/**"
+    ]
+  }
+}

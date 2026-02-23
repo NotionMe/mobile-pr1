@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@react-native/new-app-screen": "^0.84.0",
     "expo": "^54.0.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
