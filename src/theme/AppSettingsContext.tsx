@@ -5,6 +5,10 @@ export type Theme = "light" | "dark";
 interface AppSettings {
   theme: Theme;
   showDetails: boolean;
+  gardenerName: string;
+  gardenMotto: string;
+  showOnlyNeedsAttention: boolean;
+  compactCards: boolean;
 }
 
 interface AppSettingsContextType {
@@ -15,6 +19,10 @@ interface AppSettingsContextType {
 const defaultSettings: AppSettings = {
   theme: "light",
   showDetails: true,
+  gardenerName: "",
+  gardenMotto: "",
+  showOnlyNeedsAttention: false,
+  compactCards: false,
 };
 
 const AppSettingsContext = createContext<AppSettingsContextType>({

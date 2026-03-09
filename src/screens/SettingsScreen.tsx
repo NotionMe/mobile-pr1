@@ -1,10 +1,20 @@
 import React from "react";
-import { View, Text, Switch, StyleSheet, ScrollView } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
+import {
+  Card,
+  Checkbox,
+  Divider,
+  List,
+  Switch,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { useAppSettings } from "../theme/AppSettingsContext";
 
 export const SettingsScreen = () => {
   const { settings, updateSettings } = useAppSettings();
-
+  const theme = useTheme();
   const isDark = settings.theme === "dark";
 
   const toggleTheme = () => {
@@ -15,59 +25,83 @@ export const SettingsScreen = () => {
     updateSettings({ showDetails: !settings.showDetails });
   };
 
+  const toggleAttentionFilter = () => {
+    updateSettings({
+      showOnlyNeedsAttention: !settings.showOnlyNeedsAttention,
+    });
+  };
+
+  const toggleCompactCards = () => {
+    updateSettings({ compactCards: !settings.compactCards });
+  };
+
   return (
     <ScrollView
-      style={[
-        styles.container,
-        isDark ? styles.containerDark : styles.containerLight,
-      ]}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       contentContainerStyle={styles.contentContainer}
     >
-      <Text
-        style={[styles.headerText, isDark ? styles.textDark : styles.textLight]}
-      >
+      <Text variant="headlineMedium" style={styles.headerText}>
         Налаштування
       </Text>
 
-      <View
-        style={[styles.settingRow, isDark ? styles.rowDark : styles.rowLight]}
-      >
-        <Text
-          style={[
-            styles.settingText,
-            isDark ? styles.textDark : styles.textLight,
-          ]}
-        >
-          Темна тема
-        </Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={isDark ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleTheme}
-          value={isDark}
+      <Card mode="elevated" style={styles.card}>
+        <List.Item
+          title="Темна тема"
+          description="Перемикає світле та темне оформлення"
+          right={() => <Switch value={isDark} onValueChange={toggleTheme} />}
         />
-      </View>
+        <Divider />
+        <List.Item
+          title="Показувати вік рослин"
+          description="Відображати додаткову інформацію на картках"
+          right={() => (
+            <Switch value={settings.showDetails} onValueChange={toggleDetails} />
+          )}
+        />
+        <Divider />
+        <List.Item
+          title="Лише рослини, що потребують уваги"
+          description="Приховує здорові рослини на першому екрані"
+          right={() => (
+            <Switch
+              value={settings.showOnlyNeedsAttention}
+              onValueChange={toggleAttentionFilter}
+            />
+          )}
+        />
+        <Divider />
+        <Checkbox.Item
+          label="Компактний вигляд карток на першому екрані"
+          status={settings.compactCards ? "checked" : "unchecked"}
+          onPress={toggleCompactCards}
+        />
+      </Card>
 
-      <View
-        style={[styles.settingRow, isDark ? styles.rowDark : styles.rowLight]}
-      >
-        <Text
-          style={[
-            styles.settingText,
-            isDark ? styles.textDark : styles.textLight,
-          ]}
-        >
-          Показувати вік рослин
-        </Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={settings.showDetails ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleDetails}
-          value={settings.showDetails}
-        />
-      </View>
+      <Card mode="elevated" style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge" style={styles.sectionTitle}>
+            Персоналізація саду
+          </Text>
+          <TextInput
+            mode="outlined"
+            label="Ім'я садівника"
+            placeholder="Наприклад, Олена"
+            value={settings.gardenerName}
+            onChangeText={(gardenerName) => updateSettings({ gardenerName })}
+            style={styles.input}
+          />
+          <TextInput
+            mode="outlined"
+            label="Девіз саду"
+            placeholder="Короткий підпис для головного екрану"
+            value={settings.gardenMotto}
+            onChangeText={(gardenMotto) => updateSettings({ gardenMotto })}
+            multiline
+            numberOfLines={3}
+            style={styles.input}
+          />
+        </Card.Content>
+      </Card>
     </ScrollView>
   );
 };
@@ -78,45 +112,19 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-  },
-  containerLight: {
-    backgroundColor: "#F5F5F5",
-  },
-  containerDark: {
-    backgroundColor: "#121212",
+    paddingBottom: 32,
   },
   headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 24,
     textAlign: "center",
   },
-  textLight: {
-    color: "#333",
-  },
-  textDark: {
-    color: "#eee",
-  },
-  settingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
+  card: {
     marginBottom: 16,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
-  rowLight: {
-    backgroundColor: "#fff",
+  sectionTitle: {
+    marginBottom: 16,
   },
-  rowDark: {
-    backgroundColor: "#2a2a2a",
-  },
-  settingText: {
-    fontSize: 18,
+  input: {
+    marginBottom: 16,
   },
 });

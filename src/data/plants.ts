@@ -5,6 +5,7 @@ export interface Plant {
   imageUrl: string;
   status: 'Здорова' | 'Потребує води' | 'Хворіє';
   age: number;
+  notes: string;
 }
 
 export const GARDEN_PLANTS: Plant[] = Array.from({ length: 25 }).map((_, i) => ({
@@ -14,4 +15,10 @@ export const GARDEN_PLANTS: Plant[] = Array.from({ length: 25 }).map((_, i) => (
   imageUrl: `https://picsum.photos/seed/garden${i + 1}/200/200`,
   status: i % 5 === 0 ? 'Потребує води' : i % 7 === 0 ? 'Хворіє' : 'Здорова',
   age: Math.floor(Math.random() * 100) + 1,
+  notes:
+    i % 3 === 0
+      ? 'Потребує легкої обрізки та перевірки вологості ґрунту раз на тиждень.'
+      : i % 2 === 0
+        ? 'Добре росте в півтіні, любить помірний полив і пухкий ґрунт.'
+        : 'Рекомендується ставити на сонячне місце та прибирати сухе листя.',
 }));

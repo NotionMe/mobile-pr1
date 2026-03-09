@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
+import {
+  Card,
+  Chip,
+  IconButton,
+  Text,
+  TouchableRipple,
+  useTheme,
+} from 'react-native-paper';
 import { useAppSettings } from '../theme/AppSettingsContext';
 
 interface PlantCardProps {
@@ -9,7 +17,9 @@ interface PlantCardProps {
   imageUrl: string;
   status: string;
   age: number;
+  compact?: boolean;
   onPress?: () => void;
+  onDelete?: () => void;
 }
 
 export const PlantCard: React.FC<PlantCardProps> = ({
@@ -18,10 +28,12 @@ export const PlantCard: React.FC<PlantCardProps> = ({
   imageUrl,
   status,
   age,
+  compact = false,
   onPress,
+  onDelete,
 }) => {
   const { settings } = useAppSettings();
-  const isDark = settings.theme === 'dark';
+  const theme = useTheme();
 
   const getStatusColor = () => {
     switch (status) {
@@ -33,49 +45,66 @@ export const PlantCard: React.FC<PlantCardProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={onPress}
-      style={[
-        styles.card,
-        isDark ? styles.cardDark : styles.cardLight
-      ]}
-    >
-      <Image source={{ uri: imageUrl }} style={styles.image} />
-      <View style={styles.infoContainer}>
-        <Text style={[styles.name, isDark ? styles.textDark : styles.textLight]}>{name}</Text>
-        <Text style={[styles.type, isDark ? styles.textDark : styles.textLight]}>{type}</Text>
+    <Card style={[styles.card, compact && styles.cardCompact]} mode="elevated">
+      <View style={styles.row}>
+        <TouchableRipple onPress={onPress} style={styles.mainArea} borderless={false}>
+          <View style={styles.contentRow}>
+            <Image source={{ uri: imageUrl }} style={[styles.image, compact && styles.imageCompact]} />
+            <View style={styles.infoContainer}>
+              <Text variant="titleMedium" style={styles.name}>
+                {name}
+              </Text>
+              <Text variant="bodyMedium" style={[styles.type, { color: theme.colors.onSurfaceVariant }]}>
+                {type}
+              </Text>
 
-        {settings.showDetails && (
-          <Text style={[styles.age, isDark ? styles.textDark : styles.textLight]}>Вік: {age} дн.</Text>
-        )}
+              {settings.showDetails && (
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  Вік: {age} дн.
+                </Text>
+              )}
 
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-          <Text style={styles.statusText}>{status}</Text>
+              <Chip
+                compact
+                style={[styles.statusChip, { backgroundColor: getStatusColor() }]}
+                textStyle={styles.statusText}
+              >
+                {status}
+              </Chip>
+            </View>
+          </View>
+        </TouchableRipple>
+
+        <View style={styles.deleteArea}>
+          <IconButton
+            icon="trash-can-outline"
+            iconColor={theme.colors.error}
+            onPress={onDelete}
+          />
         </View>
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    padding: 12,
     marginVertical: 8,
     marginHorizontal: 16,
-    borderRadius: 12,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    overflow: 'hidden',
   },
-  cardLight: {
-    backgroundColor: '#fff',
+  cardCompact: {
+    marginVertical: 5,
   },
-  cardDark: {
-    backgroundColor: '#2a2a2a',
+  row: {
+    flexDirection: 'row',
+  },
+  mainArea: {
+    flex: 1,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    padding: 12,
   },
   image: {
     width: 80,
@@ -83,41 +112,32 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 16,
   },
+  imageCompact: {
+    width: 64,
+    height: 64,
+  },
   infoContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   name: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 4,
   },
   type: {
-    fontSize: 14,
     marginBottom: 4,
-    opacity: 0.8,
   },
-  age: {
-    fontSize: 12,
-    marginBottom: 8,
-    fontStyle: 'italic',
-    opacity: 0.6,
-  },
-  textLight: {
-    color: '#333',
-  },
-  textDark: {
-    color: '#eee',
-  },
-  statusBadge: {
+  statusChip: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    marginTop: 8,
   },
   statusText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  deleteArea: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingRight: 4,
   },
 });
