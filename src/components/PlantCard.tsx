@@ -1,14 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-import {
-  Card,
-  Chip,
-  IconButton,
-  Text,
-  TouchableRipple,
-  useTheme,
-} from 'react-native-paper';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppSettings } from '../theme/AppSettingsContext';
+import { getThemeColors } from '../theme/colors';
 
 interface PlantCardProps {
   id: string;
@@ -33,7 +26,7 @@ export const PlantCard: React.FC<PlantCardProps> = ({
   onDelete,
 }) => {
   const { settings } = useAppSettings();
-  const theme = useTheme();
+  const colors = getThemeColors(settings.theme);
 
   const getStatusColor = () => {
     switch (status) {
@@ -45,50 +38,61 @@ export const PlantCard: React.FC<PlantCardProps> = ({
   };
 
   return (
-    <Card style={[styles.card, compact && styles.cardCompact]} mode="elevated">
+    <View
+      style={[
+        styles.card,
+        compact && styles.cardCompact,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
       <View style={styles.row}>
-        <TouchableRipple onPress={onPress} style={styles.mainArea} borderless={false}>
+        <Pressable onPress={onPress} style={styles.mainArea}>
           <View style={styles.contentRow}>
-            <Image source={{ uri: imageUrl }} style={[styles.image, compact && styles.imageCompact]} />
+            <Image
+              source={{ uri: imageUrl }}
+              style={[styles.image, compact && styles.imageCompact]}
+            />
             <View style={styles.infoContainer}>
-              <Text variant="titleMedium" style={styles.name}>
-                {name}
-              </Text>
-              <Text variant="bodyMedium" style={[styles.type, { color: theme.colors.onSurfaceVariant }]}>
+              <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+              <Text style={[styles.type, { color: colors.textMuted }]}>
                 {type}
               </Text>
 
               {settings.showDetails && (
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                <Text style={[styles.metaText, { color: colors.textMuted }]}>
                   Вік: {age} дн.
                 </Text>
               )}
 
-              <Chip
-                compact
+              <View
                 style={[styles.statusChip, { backgroundColor: getStatusColor() }]}
-                textStyle={styles.statusText}
               >
-                {status}
-              </Chip>
+                <Text style={styles.statusText}>{status}</Text>
+              </View>
             </View>
           </View>
-        </TouchableRipple>
+        </Pressable>
 
         <View style={styles.deleteArea}>
-          <IconButton
-            icon="trash-can-outline"
-            iconColor={theme.colors.error}
+          <Pressable
             onPress={onDelete}
-          />
+            style={[styles.deleteButton, { backgroundColor: colors.dangerBg }]}
+          >
+            <Text style={[styles.deleteButtonText, { color: colors.dangerText }]}>
+              Видалити
+            </Text>
+          </Pressable>
         </View>
       </View>
-    </Card>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
+    borderRadius: 18,
+    borderWidth: 1,
+    elevation: 2,
     marginVertical: 8,
     marginHorizontal: 16,
     overflow: 'hidden',
@@ -121,13 +125,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   name: {
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: 4,
   },
   type: {
+    fontSize: 15,
     marginBottom: 4,
+  },
+  metaText: {
+    fontSize: 13,
   },
   statusChip: {
     alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     marginTop: 8,
   },
   statusText: {
@@ -138,6 +151,15 @@ const styles = StyleSheet.create({
   deleteArea: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingRight: 4,
+    paddingHorizontal: 8,
+  },
+  deleteButton: {
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  deleteButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
