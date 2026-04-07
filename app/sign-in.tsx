@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -14,10 +15,10 @@ import { useAppSettings } from "../src/theme/AppSettingsContext";
 import { getThemeColors } from "../src/theme/colors";
 
 export default function SignInScreen() {
-  const { isAuthenticated, login, demoUsers } = useAuth();
+  const { isAuthenticated, login, isLoading, demoUsers } = useAuth();
   const { settings } = useAppSettings();
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const colors = getThemeColors(settings.theme);
@@ -26,8 +27,8 @@ export default function SignInScreen() {
     return <Redirect href="/" />;
   }
 
-  const handleLogin = () => {
-    const result = login(username, password);
+  const handleLogin = async () => {
+    const result = await login(email, password);
 
     if (!result.success) {
       setError(result.error ?? "Не вдалося виконати вхід.");
@@ -55,10 +56,11 @@ export default function SignInScreen() {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Авторизація
           </Text>
+          {error ? <Text style={[styles.errorText, { color: colors.dangerText }]}>{error}</Text> : null}
           <TextInput
             autoCapitalize="none"
-            value={username}
-            onChangeText={setUsername}
+            value={email}
+            onChangeText={setEmail}
             style={[
               styles.input,
               {
@@ -67,8 +69,9 @@ export default function SignInScreen() {
                 color: colors.text,
               },
             ]}
-            placeholder="Логін"
+            placeholder="Email (eve.holt@reqres.in)"
             placeholderTextColor={colors.inputPlaceholder}
+            keyboardType="email-address"
           />
           <TextInput
             secureTextEntry
@@ -82,17 +85,23 @@ export default function SignInScreen() {
                 color: colors.text,
               },
             ]}
-            placeholder="Пароль"
+            placeholder="Пароль (cityslicka)"
             placeholderTextColor={colors.inputPlaceholder}
           />
           <Pressable
             onPress={handleLogin}
+            disabled={isLoading}
             style={[
               styles.loginButton,
               { backgroundColor: colors.accentStrong },
+              isLoading && { opacity: 0.7 }
             ]}
           >
-            <Text style={styles.loginButtonText}>Увійти</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.loginButtonText}>Увійти</Text>
+            )}
           </Pressable>
         </View>
       </ScrollView>
@@ -131,6 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 12,
+    textAlign: "center",
   },
   input: {
     borderRadius: 14,

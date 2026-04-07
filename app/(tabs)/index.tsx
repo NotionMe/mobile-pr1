@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { PlantCard } from "../../src/components/PlantCard";
 import { Plant } from "../../src/data/plants";
 import { useAppSettings } from "../../src/theme/AppSettingsContext";
@@ -19,6 +20,7 @@ export default function GardenScreen() {
   const { settings } = useAppSettings();
   const { plants, deletePlant } = usePlants();
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+  const router = useRouter();
   const colors = getThemeColors(settings.theme);
 
   const visiblePlants = useMemo(() => {
@@ -128,6 +130,18 @@ export default function GardenScreen() {
                   </View>
                 </View>
                 <Text style={[styles.modalNotes, { color: colors.textMuted }]}>{selectedPlant.notes}</Text>
+              </View>
+              <View style={styles.modalActions}>
+                <Pressable
+                  onPress={() => {
+                    const id = selectedPlant.id;
+                    setSelectedPlant(null);
+                    router.push(`/details/${id}`);
+                  }}
+                  style={[styles.actionButton, { backgroundColor: colors.accentStrong, marginBottom: 10 }]}
+                >
+                  <Text style={{ color: "#FFF", fontWeight: "700" }}>Детальніше</Text>
+                </Pressable>
               </View>
               <View style={styles.modalActions}>
                 <Pressable
@@ -254,8 +268,8 @@ const styles = StyleSheet.create({
   modalActions: {
     flexDirection: "row",
     gap: 10,
-    padding: 18,
-    paddingTop: 0,
+    paddingHorizontal: 18,
+    paddingBottom: 18,
   },
   actionButton: {
     alignItems: "center",
