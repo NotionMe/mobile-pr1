@@ -4,6 +4,9 @@ import { useRouter } from "expo-router";
 import { useAuth } from "../../src/context/AuthContext";
 import { useAppSettings } from "../../src/theme/AppSettingsContext";
 import { getThemeColors } from "../../src/theme/colors";
+import { useSettingsStore } from "../../src/stores/useSettingsStore";
+import { usePlantsStore } from "../../src/stores/usePlantsStore";
+import { useUserStore } from "../../src/stores/useUserStore";
 
 export default function SettingsScreen() {
   const { settings, updateSettings } = useAppSettings();
@@ -11,6 +14,11 @@ export default function SettingsScreen() {
   const router = useRouter();
   const isDark = settings.theme === "dark";
   const colors = getThemeColors(settings.theme);
+
+  const sessionOnly = useSettingsStore((state) => state.sessionOnly);
+  const setSettingsSessionOnly = useSettingsStore((state) => state.setSessionOnly);
+  const setPlantsSessionOnly = usePlantsStore((state) => state.setSessionOnly);
+  const setUserSessionOnly = useUserStore((state) => state.setSessionOnly);
 
   const toggleTheme = () => {
     updateSettings({ theme: isDark ? "light" : "dark" });
@@ -28,6 +36,13 @@ export default function SettingsScreen() {
 
   const toggleCompactCards = () => {
     updateSettings({ compactCards: !settings.compactCards });
+  };
+
+  const toggleSessionOnly = () => {
+    const newValue = !sessionOnly;
+    setSettingsSessionOnly(newValue);
+    setPlantsSessionOnly(newValue);
+    setUserSessionOnly(newValue);
   };
 
   const handleLogout = () => {
@@ -90,6 +105,18 @@ export default function SettingsScreen() {
             value={settings.showOnlyNeedsAttention}
             onValueChange={toggleAttentionFilter}
           />
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingTextBox}>
+            <Text style={[styles.settingTitle, { color: colors.text }]}>Режим "тільки на сесію"</Text>
+            <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
+              Не зберігати дані на пристрій після закриття додатку
+            </Text>
+          </View>
+          <Switch value={sessionOnly} onValueChange={toggleSessionOnly} />
         </View>
 
         <View style={styles.divider} />

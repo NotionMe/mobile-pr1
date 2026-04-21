@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode } from "react";
+import { useSettingsStore, Theme } from "../stores/useSettingsStore";
 
-export type Theme = "light" | "dark";
+export type { Theme };
 
 interface AppSettings {
   theme: Theme;
@@ -16,25 +17,34 @@ interface AppSettingsContextType {
   updateSettings: (newSettings: Partial<AppSettings>) => void;
 }
 
-const defaultSettings: AppSettings = {
-  theme: "light",
-  showDetails: true,
-  gardenerName: "",
-  gardenMotto: "",
-  showOnlyNeedsAttention: false,
-  compactCards: false,
-};
-
 const AppSettingsContext = createContext<AppSettingsContextType>({
-  settings: defaultSettings,
+  settings: {
+    theme: "light",
+    showDetails: true,
+    gardenerName: "",
+    gardenMotto: "",
+    showOnlyNeedsAttention: false,
+    compactCards: false,
+  },
   updateSettings: () => {},
 });
 
 export const AppSettingsProvider = ({ children }: { children: ReactNode }) => {
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const theme = useSettingsStore((state) => state.theme);
+  const showDetails = useSettingsStore((state) => state.showDetails);
+  const gardenerName = useSettingsStore((state) => state.gardenerName);
+  const gardenMotto = useSettingsStore((state) => state.gardenMotto);
+  const showOnlyNeedsAttention = useSettingsStore((state) => state.showOnlyNeedsAttention);
+  const compactCards = useSettingsStore((state) => state.compactCards);
+  const updateSettings = useSettingsStore((state) => state.updateSettings);
 
-  const updateSettings = (newSettings: Partial<AppSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+  const settings: AppSettings = {
+    theme,
+    showDetails,
+    gardenerName,
+    gardenMotto,
+    showOnlyNeedsAttention,
+    compactCards,
   };
 
   return (

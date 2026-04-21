@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
-import { GARDEN_PLANTS, Plant } from "../data/plants";
+import React, { createContext, useContext, ReactNode } from "react";
+import { Plant } from "../data/plants";
+import { usePlantsStore } from "../stores/usePlantsStore";
 
 interface PlantsContextType {
   plants: Plant[];
@@ -14,17 +15,9 @@ const PlantsContext = createContext<PlantsContextType>({
 });
 
 export const PlantsProvider = ({ children }: { children: ReactNode }) => {
-  const [plants, setPlants] = useState<Plant[]>(GARDEN_PLANTS);
-
-  const addPlant = (plant: Plant) => {
-    setPlants((prevPlants) => [plant, ...prevPlants]);
-  };
-
-  const deletePlant = (plantId: string) => {
-    setPlants((prevPlants) =>
-      prevPlants.filter((plant) => plant.id !== plantId)
-    );
-  };
+  const plants = usePlantsStore((state) => state.plants);
+  const addPlant = usePlantsStore((state) => state.addPlant);
+  const deletePlant = usePlantsStore((state) => state.deletePlant);
 
   return (
     <PlantsContext.Provider value={{ plants, addPlant, deletePlant }}>

@@ -3,18 +3,9 @@ import React, {
   ReactNode,
   useContext,
   useMemo,
-  useState,
 } from "react";
 import axios from "axios";
-
-export interface AuthUser {
-  id: string;
-  username: string;
-  email: string;
-  fullName: string;
-  role: string;
-  token?: string;
-}
+import { useUserStore, AuthUser } from "../stores/useUserStore";
 
 interface LoginResult {
   success: boolean;
@@ -64,13 +55,16 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const currentUser = useUserStore((state) => state.currentUser);
+  const isLoading = useUserStore((state) => state.isLoading);
+  const setUser = useUserStore((state) => state.setUser);
+  const setLoading = useUserStore((state) => state.setLoading);
+  const logoutStore = useUserStore((state) => state.logout);
 
   const demoUsers = useMemo(() => DEMO_USERS, []);
 
   const login = async (email: string, password: string): Promise<LoginResult> => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const response = await axios.post("https://reqres.in/api/login", {
         email: email.trim().toLowerCase(),
@@ -82,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           (user) => user.email.toLowerCase() === email.trim().toLowerCase()
         );
 
-        setCurrentUser({
+        setUser({
           id: matchedUser?.id ?? "user-api",
           username: matchedUser?.username ?? email.split("@")[0],
           email: email.trim().toLowerCase(),
@@ -98,15 +92,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const normalizedEmail = email.trim().toLowerCase();
       if (normalizedEmail === "eve.holt@reqres.in" && password.trim() === "cityslicka") {
         console.warn("ReqRes API недоступне або вимагає ключ. Використовується локальний обхід (fallback) для входу.");
-        
+
         const matchedUser = DEMO_USERS.find(user => user.email === normalizedEmail);
-        setCurrentUser({
+        setUser({
           id: matchedUser?.id ?? "user-api",
           username: matchedUser?.username ?? "eve",
           email: normalizedEmail,
           fullName: matchedUser?.fullName ?? "Ева Холт",
           role: matchedUser?.role ?? "Користувач",
-          token: "QpwL5tke4Pnpja7X4", // Фейковий токен 
+          token: "QpwL5tke4Pnpja7X4",
         });
         return { success: true };
       }
@@ -128,12 +122,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: "Сталася невідома помилка. Спробуйте пізніше.",
       };
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const logout = () => {
-    setCurrentUser(null);
+    logoutStore();
   };
 
   return (
